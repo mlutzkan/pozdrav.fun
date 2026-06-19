@@ -1,0 +1,9 @@
+{
+  "name": "pozdrav-fun",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "nodemailer": "^6.9.0",
+    "stripe": "^16.0.0"
+  }
+}

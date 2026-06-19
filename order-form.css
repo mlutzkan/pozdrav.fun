@@ -499,3 +499,116 @@
   transition: opacity 0.2s;
 }
 .order-success-close:hover { opacity: 0.85; }
+
+/* ─── STEP 7: PAYMENT ─── */
+.payment-summary {
+  background: var(--navy);
+  border-radius: 10px;
+  padding: 1.1rem 1.4rem;
+  margin-bottom: 1.75rem;
+}
+.payment-summary-inner {}
+.payment-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 0.3rem;
+}
+.payment-summary-row strong { color: #fff; }
+.payment-summary-price {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+}
+.payment-summary-detail {
+  font-size: 0.76rem;
+  color: rgba(255,255,255,0.45);
+}
+
+.payment-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 2rem 0;
+}
+.payment-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(201,168,76,0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.payment-loading-text {
+  font-size: 0.82rem;
+  color: var(--text-light);
+}
+
+.payment-element-container { margin-bottom: 0.75rem; }
+
+.payment-error-msg {
+  display: none;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.84rem;
+  color: #b91c1c;
+  margin-top: 0.75rem;
+  line-height: 1.5;
+}
+
+.payment-secure-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.74rem;
+  color: var(--text-light);
+  margin-top: 1rem;
+}
+.payment-secure-note svg {
+  flex-shrink: 0;
+  stroke: var(--text-light);
+  fill: none;
+  width: 14px; height: 14px;
+}
+
+/* ─── ORDER BTN disabled state ─── */
+.order-btn-next:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ─── 3DS success banner ─── */
+.payment-success-banner {
+  display: none;
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  background: #fff;
+  border: 1.5px solid #22c55e;
+  border-radius: 10px;
+  padding: 0.9rem 1.5rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.88rem;
+  color: var(--navy);
+  font-weight: 500;
+  white-space: nowrap;
+  animation: bannerIn 0.4s cubic-bezier(0.34,1.2,0.64,1);
+}
+@keyframes bannerIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-16px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.payment-success-banner-icon { font-size: 1.2rem; }
