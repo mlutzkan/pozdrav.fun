@@ -576,13 +576,11 @@ nav.scrolled {
   border-radius: 2px;
   background: var(--cream-dark);
   transition: background 0.2s;
+  animation: wave-pulse 1.4s ease-in-out infinite;
+  animation-play-state: paused;
 }
 .audio-card.active .aw-bar { background: linear-gradient(to top, rgba(201,168,76,0.5), rgba(201,168,76,1)); }
-.audio-card.active .aw-bar.playing { animation: aw-pulse 0.8s ease-in-out infinite; }
-@keyframes aw-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
+.audio-card.active .aw-bar.playing { animation-play-state: running; }
 
 .audio-meta {
   display: flex;

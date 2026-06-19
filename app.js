@@ -105,11 +105,12 @@ function initCardWaveforms() {
   for (let i = 0; i < 4; i++) {
     const aw = document.getElementById('aw-' + i);
     if (!aw) continue;
-    wfHeights[i].forEach(h => {
+    wfHeights[i].forEach((h, j) => {
       const bar = document.createElement('div');
       bar.className = 'aw-bar';
       bar.style.height = h + '%';
       bar.style.flex = '1';
+      bar.style.animationDelay = (j * 0.06) + 's';
       aw.appendChild(bar);
     });
   }
@@ -117,18 +118,30 @@ function initCardWaveforms() {
 
 // ─── EXAMPLE AUDIO CARDS ───────────────────────────────────
 let activeCard = null;
+let activeIdx  = null;
 let progressInterval = null;
-const progressPct = [0, 0, 0, 0];
-const durations = [168, 135, 185, 202];
+const audioObjects = {};
 
 function initExampleCards() {
   document.querySelectorAll('.audio-card').forEach((card, idx) => {
     const track = tracks.find(t => t.slot === 'example' && t.index === idx);
     if (!track || track.comingSoon) {
       applyComingSoon(card);
-    } else {
-      card.addEventListener('click', () => toggleAudio(card, idx));
+      return;
     }
+
+    if (track.file) {
+      const audio = new Audio(track.file);
+      audioObjects[idx] = audio;
+      audio.addEventListener('ended', () => stopCard(card, idx));
+      audio.addEventListener('error', () => stopCard(card, idx));
+    }
+
+    const btn = card.querySelector('.audio-play');
+    if (btn) btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleAudio(card, idx);
+    });
   });
 }
 
@@ -146,41 +159,62 @@ function applyComingSoon(card) {
   if (genre) genre.after(badge);
 }
 
-function toggleAudio(card, idx) {
-  const pb = document.getElementById('pb-' + idx);
+function setCardPlayState(card, idx, playing) {
+  const btn  = card.querySelector('.audio-play');
+  const path = btn?.querySelector('path');
+  if (path) {
+    path.setAttribute('d', playing
+      ? 'M6 19h4V5H6v14zm8-14v14h4V5h-4z'
+      : 'M8 5v14l11-7z'
+    );
+  }
+  card.classList.toggle('active', playing);
+  card.querySelectorAll('.aw-bar').forEach(b => b.classList.toggle('playing', playing));
+}
 
+function stopCard(card, idx) {
+  const audio = audioObjects[idx];
+  if (audio) { audio.pause(); audio.currentTime = 0; }
+  setCardPlayState(card, idx, false);
+  clearInterval(progressInterval);
+  progressInterval = null;
+  const pb = document.getElementById('pb-' + idx);
+  if (pb) pb.style.width = '0%';
+  if (activeCard === card) { activeCard = null; activeIdx = null; }
+}
+
+function toggleAudio(card, idx) {
+  const audio = audioObjects[idx];
+
+  // Pause current card
   if (activeCard === card) {
-    card.classList.remove('active');
-    card.querySelectorAll('.aw-bar').forEach(b => b.classList.remove('playing'));
+    if (audio) audio.pause();
+    setCardPlayState(card, idx, false);
     clearInterval(progressInterval);
     progressInterval = null;
     activeCard = null;
+    activeIdx  = null;
     return;
   }
 
-  if (activeCard) {
-    activeCard.classList.remove('active');
-    activeCard.querySelectorAll('.aw-bar').forEach(b => b.classList.remove('playing'));
-    clearInterval(progressInterval);
-    progressInterval = null;
+  // Stop any other playing card first
+  if (activeCard) stopCard(activeCard, activeIdx);
+
+  // Play this card
+  if (audio) {
+    audio.play().catch(() => setCardPlayState(card, idx, false));
   }
-
-  card.classList.add('active');
-  card.querySelectorAll('.aw-bar').forEach(b => b.classList.add('playing'));
+  setCardPlayState(card, idx, true);
   activeCard = card;
+  activeIdx  = idx;
 
+  // Real-time progress from audio element
+  const pb = document.getElementById('pb-' + idx);
+  clearInterval(progressInterval);
   progressInterval = setInterval(() => {
-    progressPct[idx] = Math.min(progressPct[idx] + (100 / durations[idx]), 100);
-    if (pb) pb.style.width = progressPct[idx] + '%';
-    if (progressPct[idx] >= 100) {
-      clearInterval(progressInterval);
-      progressInterval = null;
-      progressPct[idx] = 0;
-      card.classList.remove('active');
-      card.querySelectorAll('.aw-bar').forEach(b => b.classList.remove('playing'));
-      activeCard = null;
-    }
-  }, 1000);
+    if (!audio || !audio.duration) return;
+    if (pb) pb.style.width = (audio.currentTime / audio.duration * 100) + '%';
+  }, 250);
 }
 
 // ─── HERO AUDIO ────────────────────────────────────────────
