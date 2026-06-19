@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="order-form.css">
 <link rel="preload" as="audio" href="audio/za-teb.mp3" type="audio/mpeg">
 </head>
 <body>
@@ -411,7 +412,7 @@
           <li class="pricing-feature">1 безплатна корекция</li>
           <li class="pricing-feature">Доставка до 72 часа</li>
         </ul>
-        <a href="#final-cta" class="btn btn-outline-dark" style="width:100%; justify-content:center;">Поръчай</a>
+        <a href="#pricing" class="btn btn-outline-dark order-trigger" data-tier="basic" data-price="39" style="width:100%; justify-content:center;">Поръчай</a>
       </div>
 
       <div class="pricing-card featured reveal">
@@ -431,7 +432,7 @@
           <li class="pricing-feature">Доставка до 48 часа</li>
           <li class="pricing-feature">Кратко аудио послание</li>
         </ul>
-        <a href="#final-cta" class="btn btn-primary" style="width:100%; justify-content:center;">Поръчай</a>
+        <a href="#pricing" class="btn btn-primary order-trigger" data-tier="premium" data-price="59" style="width:100%; justify-content:center;">Поръчай</a>
       </div>
 
       <div class="pricing-card reveal">
@@ -450,7 +451,7 @@
           <li class="pricing-feature">Доставка до 24 часа</li>
           <li class="pricing-feature">Линк към YouTube видео (по заявка)</li>
         </ul>
-        <a href="#final-cta" class="btn btn-outline-dark" style="width:100%; justify-content:center;">Поръчай</a>
+        <a href="#pricing" class="btn btn-outline-dark order-trigger" data-tier="signature" data-price="99" style="width:100%; justify-content:center;">Поръчай</a>
       </div>
     </div>
     <p class="pricing-note">Без допълнителни такси и начисления · Плащането е онлайн и сигурно · Получавате песента по имейл</p>
@@ -549,5 +550,287 @@
 </footer>
 
 <script src="app.js" defer></script>
+<script src="order-form.js" defer></script>
+
+<!-- ORDER FORM MODAL -->
+<div id="order-modal" class="order-modal" role="dialog" aria-modal="true">
+  <div class="order-backdrop" id="order-backdrop"></div>
+  <div class="order-sheet">
+
+    <!-- Header -->
+    <div class="order-header">
+      <div class="order-header-top">
+        <span class="order-tier-badge" id="order-tier-badge">Basic · €39</span>
+        <button class="order-close" id="order-close" aria-label="Затвори">
+          <svg viewBox="0 0 14 14"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg>
+        </button>
+      </div>
+      <div class="order-progress-track">
+        <div class="order-progress-fill" id="order-progress-fill"></div>
+      </div>
+      <div class="order-step-count" id="order-step-count">Стъпка 1 от 7</div>
+    </div>
+
+    <!-- Steps -->
+    <div class="order-body" id="order-body">
+
+      <!-- STEP 1 — Basic info -->
+      <div class="order-step" id="order-step-1">
+        <span class="order-step-eyebrow">Нека започнем</span>
+        <h2 class="order-step-title">За кого е тази песен?</h2>
+        <p class="order-step-subtitle">Всяка страхотна песен започва с история. Нека разберем кой я получава.</p>
+
+        <div class="order-field">
+          <label class="order-label" for="of-recipient">За кого е песента?</label>
+          <input class="order-input" id="of-recipient" type="text" placeholder="Например: Мама, Иван, Приятелката ми Мария…" autocomplete="off">
+          <span class="order-error-msg" id="err-recipient">Моля, кажи ни за кого е песента.</span>
+        </div>
+
+        <div class="order-field">
+          <label class="order-label" for="of-sender">От кого е подаръкът?</label>
+          <input class="order-input" id="of-sender" type="text" placeholder="Например: твоето дете, семейството, Петър…" autocomplete="off">
+          <span class="order-error-msg" id="err-sender">Моля, кажи ни от кого е.</span>
+        </div>
+
+        <div class="order-field">
+          <label class="order-label" for="of-occasion">Какъв е поводът?</label>
+          <select class="order-select" id="of-occasion">
+            <option value="">Избери повод…</option>
+            <option value="birthday">Рожден ден</option>
+            <option value="anniversary">Годишнина</option>
+            <option value="love">Любовно признание</option>
+            <option value="surprise">Изненада без повод</option>
+            <option value="other">Друго</option>
+          </select>
+          <span class="order-error-msg" id="err-occasion">Моля, избери повод.</span>
+        </div>
+
+        <div class="order-field" id="occasion-custom-field" style="display:none;">
+          <label class="order-label" for="of-occasion-custom">Опиши повода</label>
+          <input class="order-input" id="of-occasion-custom" type="text" placeholder="Например: завършване, нова работа, сбогуване…" autocomplete="off">
+          <span class="order-error-msg" id="err-occasion-custom">Моля, опиши повода.</span>
+        </div>
+      </div>
+
+      <!-- STEP 2 — Story -->
+      <div class="order-step" id="order-step-2">
+        <span class="order-step-eyebrow">Твоята история</span>
+        <h2 class="order-step-title">Разкажи ни за тях</h2>
+        <p class="order-step-subtitle">Как се запознахте? Какво искаш да кажеш? Спомени, моменти, всичко е важно.</p>
+
+        <div class="order-field">
+          <label class="order-label" for="of-story">Вашата история</label>
+          <textarea class="order-textarea large" id="of-story" placeholder="Пиши свободно — колкото повече разказваш, толкова по-лична ще е песента…"></textarea>
+          <span class="order-hint">Колкото по-лично, толкова по-емоционална ще бъде песента.</span>
+          <span class="order-error-msg" id="err-story">Сподели поне няколко изречения — историята е сърцето на песента.</span>
+        </div>
+      </div>
+
+      <!-- STEP 3 — Emotion -->
+      <div class="order-step" id="order-step-3">
+        <span class="order-step-eyebrow">Емоцията</span>
+        <h2 class="order-step-title">Какво да почувства?</h2>
+        <p class="order-step-subtitle">Избери усещанията, които искаш тази песен да предизвика. Може да избереш повече от едно.</p>
+
+        <div class="order-chips" id="emotion-chips">
+          <button type="button" class="order-chip" onclick="toggleEmotion(this, 'Любов')">Любов</button>
+          <button type="button" class="order-chip" onclick="toggleEmotion(this, 'Изненада')">Изненада</button>
+          <button type="button" class="order-chip" onclick="toggleEmotion(this, 'Силна емоция')">Силна емоция</button>
+          <button type="button" class="order-chip" onclick="toggleEmotion(this, 'Благодарност')">Благодарност</button>
+          <button type="button" class="order-chip" onclick="toggleEmotion(this, 'Носталгия')">Носталгия</button>
+          <button type="button" class="order-chip" onclick="toggleEmotion(this, 'Мотивация')">Мотивация</button>
+          <button type="button" class="order-chip" onclick="toggleEmotion(this, 'Ярост')">Ярост</button>
+          <button type="button" class="order-chip" onclick="toggleEmotion(this, 'Смях')">Смях</button>
+        </div>
+        <div class="order-field" style="margin-top:1rem;">
+          <textarea class="order-textarea" id="of-emotions-custom" style="min-height:80px;" placeholder="Можеш да изброиш всички емоции, които искаш…"></textarea>
+        </div>
+        <span class="order-error-msg" id="err-emotions">Избери поне едно усещане или го опиши по-долу.</span>
+      </div>
+
+      <!-- STEP 4 — Style -->
+      <div class="order-step" id="order-step-4">
+        <span class="order-step-eyebrow">Музикалният стил</span>
+        <h2 class="order-step-title">Как да звучи?</h2>
+        <p class="order-step-subtitle">Музиката носи емоцията. Избери звука, който пасва на историята.</p>
+
+        <div class="order-field">
+          <span class="order-field-group-label">Стил</span>
+          <div class="order-radio-cards">
+            <label class="order-radio-card">
+              <input type="radio" name="of-style" value="romantic" checked>
+              <div class="order-radio-card-inner">
+                <div class="order-radio-dot"></div>
+                <span class="order-radio-icon">🌹</span>
+                <div class="order-radio-text">
+                  <div class="order-radio-title">Романтична балада</div>
+                  <div class="order-radio-desc">Топла, нежна, емоционална</div>
+                </div>
+              </div>
+            </label>
+            <label class="order-radio-card">
+              <input type="radio" name="of-style" value="pop">
+              <div class="order-radio-card-inner">
+                <div class="order-radio-dot"></div>
+                <span class="order-radio-icon">✨</span>
+                <div class="order-radio-text">
+                  <div class="order-radio-title">Модерна поп песен</div>
+                  <div class="order-radio-desc">Свежа, радиосъвместима, запомняща се</div>
+                </div>
+              </div>
+            </label>
+            <label class="order-radio-card">
+              <input type="radio" name="of-style" value="energetic">
+              <div class="order-radio-card-inner">
+                <div class="order-radio-dot"></div>
+                <span class="order-radio-icon">⚡</span>
+                <div class="order-radio-text">
+                  <div class="order-radio-title">Енергична / ритмична</div>
+                  <div class="order-radio-desc">Весела, танцувална, заразителна</div>
+                </div>
+              </div>
+            </label>
+            <label class="order-radio-card">
+              <input type="radio" name="of-style" value="cinematic">
+              <div class="order-radio-card-inner">
+                <div class="order-radio-dot"></div>
+                <span class="order-radio-icon">🎬</span>
+                <div class="order-radio-text">
+                  <div class="order-radio-title">Кинематографична</div>
+                  <div class="order-radio-desc">Епична, дълбока, завладяваща</div>
+                </div>
+              </div>
+            </label>
+            <label class="order-radio-card">
+              <input type="radio" name="of-style" value="other">
+              <div class="order-radio-card-inner">
+                <div class="order-radio-dot"></div>
+                <span class="order-radio-icon">🎵</span>
+                <div class="order-radio-text">
+                  <div class="order-radio-title">Друго</div>
+                  <div class="order-radio-desc">Опиши жанра или звука, който имаш предвид</div>
+                </div>
+              </div>
+            </label>
+          </div>
+          <div id="style-custom-field" style="display:none; margin-top:0.65rem;">
+            <input class="order-input" id="of-style-custom" type="text" placeholder="Например: фолк, джаз, хип-хоп, класическа…">
+            <span class="order-error-msg" id="err-style-custom">Моля, опиши стила.</span>
+          </div>
+        </div>
+
+        <div class="order-field">
+          <span class="order-field-group-label">Предпочитание за глас</span>
+          <div class="order-radio-cards">
+            <label class="order-radio-card">
+              <input type="radio" name="of-vocal" value="male">
+              <div class="order-radio-card-inner">
+                <div class="order-radio-dot"></div>
+                <span class="order-radio-icon">🎤</span>
+                <div class="order-radio-text">
+                  <div class="order-radio-title">Мъжки глас</div>
+                </div>
+              </div>
+            </label>
+            <label class="order-radio-card">
+              <input type="radio" name="of-vocal" value="female">
+              <div class="order-radio-card-inner">
+                <div class="order-radio-dot"></div>
+                <span class="order-radio-icon">🎤</span>
+                <div class="order-radio-text">
+                  <div class="order-radio-title">Женски глас</div>
+                </div>
+              </div>
+            </label>
+            <label class="order-radio-card">
+              <input type="radio" name="of-vocal" value="no-preference" checked>
+              <div class="order-radio-card-inner">
+                <div class="order-radio-dot"></div>
+                <span class="order-radio-icon">🎶</span>
+                <div class="order-radio-text">
+                  <div class="order-radio-title">Без предпочитание</div>
+                  <div class="order-radio-desc">Ще изберем най-подходящото</div>
+                </div>
+              </div>
+            </label>
+            <label class="order-radio-card vocal-locked">
+              <input type="radio" name="of-vocal" value="duet" disabled>
+              <div class="order-radio-card-inner">
+                <div class="order-radio-dot"></div>
+                <span class="order-radio-icon">🎙️</span>
+                <div class="order-radio-text">
+                  <div class="order-radio-title">Дует</div>
+                  <div class="order-radio-desc">Мъжки и женски глас заедно</div>
+                </div>
+                <span class="order-radio-tag">Signature</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 — Optional details -->
+      <div class="order-step" id="order-step-5">
+        <span class="order-step-eyebrow">Финални детайли</span>
+        <h2 class="order-step-title">Искаш ли да добавиш нещо?</h2>
+        <p class="order-step-subtitle">По желание — но всеки детайл прави песента по-твоя.</p>
+
+        <div class="order-field">
+          <label class="order-label" for="of-include">Конкретни думи или фрази за включване</label>
+          <textarea class="order-textarea" id="of-include" style="min-height:80px;" placeholder="Например: прякор, конкретна дума или място…"></textarea>
+        </div>
+
+        <div class="order-field">
+          <label class="order-label" for="of-exclude">Неща, които НЕ трябва да се споменават</label>
+          <textarea class="order-textarea" id="of-exclude" placeholder="Например: болест, бивш партньор, болезнена тема…"></textarea>
+        </div>
+
+        <div class="order-field">
+          <div class="order-toggle-field">
+            <div class="order-toggle-text">
+              <div class="order-toggle-title">Английски елементи в песента</div>
+              <div class="order-toggle-desc">Смесен език или отделни английски фрази</div>
+            </div>
+            <label class="order-toggle">
+              <input type="checkbox" id="of-english">
+              <span class="order-toggle-track"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 — Contact -->
+      <div class="order-step" id="order-step-6">
+        <span class="order-step-eyebrow">Почти готово</span>
+        <h2 class="order-step-title">Как да те открием?</h2>
+        <p class="order-step-subtitle">Готовата песен ще пристигне на този имейл. Потвърждение ще получиш веднага след поръчката.</p>
+
+        <div class="order-field">
+          <label class="order-label" for="of-email">Имейл адрес</label>
+          <input class="order-input" id="of-email" type="email" placeholder="твоят@имейл.com" autocomplete="email">
+          <span class="order-error-msg" id="err-email">Моля, въведи валиден имейл адрес.</span>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="order-success">
+        <span class="order-success-icon">🎵</span>
+        <h2>Твоята история е на път да стане песен.</h2>
+        <p>Ще се свържем с теб на<br><span class="order-success-email" id="success-email"></span><br>в рамките на <span id="success-delivery"></span>.</p>
+        <p style="font-size:0.82rem; color:var(--text-light);">Провери и папката „Спам" — понякога хубавите неща попадат там.</p>
+        <button class="order-success-close" id="order-success-close">Затвори</button>
+      </div>
+
+    </div><!-- /.order-body -->
+
+    <!-- Footer -->
+    <div class="order-footer" id="order-footer">
+      <button class="order-btn-back hidden" id="order-back">← Назад</button>
+      <button class="order-btn-next" id="order-next">Напред →</button>
+    </div>
+
+  </div><!-- /.order-sheet -->
+</div><!-- /.order-modal -->
+
 </body>
 </html>
