@@ -102,8 +102,12 @@ exports.handler = async (event) => {
         ``,
         `Ако имате допълнителна информация, която искате да добавите (спомени, думи или детайли), можете да отговорите на този имейл.`,
         ``,
-        `С уважение,`,
-        `Екипът на pozdrav.fun`
+        `С най-добри пожелания,`,
+        `Екипът на Pozdrav.fun`,
+        ``,
+        `Ние превръщаме вашата история в персонална песен 🎵`,
+        `https://pozdrav.fun/`,
+        `support@pozdrav.fun`
       ].join('\n'),
       html: `
 <!DOCTYPE html>
@@ -189,10 +193,11 @@ exports.handler = async (event) => {
           </td></tr>
         </table>
 
-        <p style="font-size:14px;color:#4A4A6A;margin:0;line-height:1.7;">
-          С уважение,<br>
-          <strong style="color:#1A1A2E;">Екипът на pozdrav.fun</strong>
+        <p style="font-size:14px;color:#4A4A6A;margin:0 0 20px;line-height:1.7;">
+          С най-добри пожелания,<br>
+          <strong style="color:#1A1A2E;">Екипът на Pozdrav.fun</strong>
         </p>
+        ${process.env.EMAIL_SIGNATURE_HTML || ''}
       </td></tr>
 
       <!-- Footer -->
