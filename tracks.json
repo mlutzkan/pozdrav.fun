@@ -1,0 +1,35 @@
+[
+  {
+    "id": "za-teb",
+    "slot": "hero",
+    "file": "audio/za-teb.mp3"
+  },
+  {
+    "id": "za-neya-nego",
+    "slot": "example",
+    "index": 0,
+    "file": null,
+    "comingSoon": true
+  },
+  {
+    "id": "zabavna-priyatel",
+    "slot": "example",
+    "index": 1,
+    "file": null,
+    "comingSoon": true
+  },
+  {
+    "id": "za-mama",
+    "slot": "example",
+    "index": 2,
+    "file": null,
+    "comingSoon": true
+  },
+  {
+    "id": "pyrvi-tants",
+    "slot": "example",
+    "index": 3,
+    "file": null,
+    "comingSoon": true
+  }
+]
