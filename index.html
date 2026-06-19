@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="order-form.css">
 <link rel="preload" as="audio" href="audio/za-teb.mp3" type="audio/mpeg">
+<script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -812,6 +813,34 @@
         </div>
       </div>
 
+      <!-- STEP 7 — Payment -->
+      <div class="order-step" id="order-step-7">
+        <span class="order-step-eyebrow">Плащане</span>
+        <h2 class="order-step-title">Последна стъпка</h2>
+        <p class="order-step-subtitle">Твоята поръчка е готова. Само плащането остава.</p>
+
+        <div id="payment-summary" class="payment-summary"></div>
+
+        <div id="payment-loading" class="payment-loading">
+          <div class="payment-spinner"></div>
+          <span class="payment-loading-text">Подготвяме формата за плащане…</span>
+        </div>
+
+        <div id="payment-element-container" class="payment-element-container" style="display:none;">
+          <div id="payment-element"></div>
+        </div>
+
+        <div id="payment-error" class="payment-error-msg"></div>
+
+        <div class="payment-secure-note">
+          <svg viewBox="0 0 14 14" stroke-width="1.4">
+            <rect x="2" y="6" width="10" height="7" rx="1.5"/>
+            <path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6" stroke-linecap="round"/>
+          </svg>
+          Плащането е криптирано и сигурно · Stripe PCI-DSS Level 1
+        </div>
+      </div>
+
       <!-- SUCCESS -->
       <div class="order-success">
         <span class="order-success-icon">🎵</span>
@@ -831,6 +860,12 @@
 
   </div><!-- /.order-sheet -->
 </div><!-- /.order-modal -->
+
+<!-- 3D Secure return banner -->
+<div id="payment-success-banner" class="payment-success-banner">
+  <span class="payment-success-banner-icon">✓</span>
+  Плащането е потвърдено! Очаквай песента на имейла си.
+</div>
 
 </body>
 </html>
