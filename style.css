@@ -907,8 +907,9 @@ footer {
 
 /* AUDIO PLAYER PROGRESS */
 .audio-progress {
-  height: 2px;
+  height: 4px;
   background: var(--cream-dark);
+  cursor: pointer;
   border-radius: 2px;
   margin-top: 0.75rem;
   overflow: hidden;
