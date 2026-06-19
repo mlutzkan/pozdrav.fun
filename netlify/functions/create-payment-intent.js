@@ -35,7 +35,7 @@ exports.handler = async (event) => {
       amount,
       currency: 'eur',
       receipt_email: email,
-      automatic_payment_methods: { enabled: true },
+      payment_method_types: ['card'],
       metadata: {
         orderNumber,
         tier,

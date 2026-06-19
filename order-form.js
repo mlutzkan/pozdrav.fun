@@ -294,7 +294,16 @@ async function initPaymentStep() {
       }
     });
 
-    const paymentElement = ORDER._elements.create('payment', { layout: 'tabs' });
+    const paymentElement = ORDER._elements.create('payment', {
+      layout: 'tabs',
+      fields: {
+        billingDetails: { email: 'never' }
+      },
+      wallets: {
+        applePay: 'never',
+        googlePay: 'never'
+      }
+    });
     paymentElement.mount('#payment-element');
 
     paymentElement.on('ready', () => {
