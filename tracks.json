@@ -5,11 +5,11 @@
     "file": "audio/za-teb.mp3"
   },
   {
-    "id": "za-neya-nego",
+    "id": "emo",
     "slot": "example",
     "index": 0,
-    "file": null,
-    "comingSoon": true
+    "file": "audio/Emo.wav",
+    "comingSoon": false
   },
   {
     "id": "zabavna-priyatel",
