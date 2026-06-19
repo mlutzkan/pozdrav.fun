@@ -83,6 +83,7 @@ exports.handler = async (event) => {
         `🧾 Детайли на поръчката:`,
         `Получател: ${recipient}`,
         `Тип доставка: ${deliveryLabel}`,
+        `Платена сума: €${price}`,
         ``,
         `🎧 Какво следва?`,
         ``,
@@ -150,6 +151,10 @@ exports.handler = async (event) => {
               <tr>
                 <td style="font-size:13px;color:#4A4A6A;">Тип доставка:</td>
                 <td style="font-size:13px;color:#1A1A2E;font-weight:500;">${deliveryLabel}</td>
+              </tr>
+              <tr>
+                <td style="font-size:13px;color:#4A4A6A;padding-top:6px;">Платена сума:</td>
+                <td style="font-size:13px;color:#1A1A2E;font-weight:500;padding-top:6px;">€${price}</td>
               </tr>
             </table>
           </td></tr>
