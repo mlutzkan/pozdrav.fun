@@ -135,6 +135,25 @@ function initExampleCards() {
       audioObjects[idx] = audio;
       audio.addEventListener('ended', () => stopCard(card, idx));
       audio.addEventListener('error', () => stopCard(card, idx));
+
+      // Update duration display once metadata loads
+      const durEl = card.querySelector('.audio-duration');
+      audio.addEventListener('loadedmetadata', () => {
+        if (durEl && audio.duration) durEl.textContent = formatTime(audio.duration);
+      });
+
+      // Click progress track to seek
+      const progressTrack = card.querySelector('.audio-progress');
+      if (progressTrack) {
+        progressTrack.addEventListener('click', (e) => {
+          if (!audio.duration) return;
+          const rect = progressTrack.getBoundingClientRect();
+          const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+          audio.currentTime = pct * audio.duration;
+          const pb = document.getElementById('pb-' + idx);
+          if (pb) pb.style.width = (pct * 100) + '%';
+        });
+      }
     }
 
     const btn = card.querySelector('.audio-play');
@@ -266,6 +285,12 @@ function setHeroPlayState(playing) {
   document.querySelectorAll('.wave-bar').forEach(b => {
     b.classList.toggle('playing', playing);
   });
+}
+
+function formatTime(s) {
+  const m  = Math.floor(s / 60);
+  const ss = Math.floor(s % 60).toString().padStart(2, '0');
+  return `${m}:${ss}`;
 }
 
 // ─── FAQ ───────────────────────────────────────────────────
