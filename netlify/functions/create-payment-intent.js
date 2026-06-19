@@ -29,12 +29,15 @@ exports.handler = async (event) => {
       };
     }
 
+    const orderNumber = (Math.floor(Math.random() * 90000) + 10000).toString();
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: 'eur',
       receipt_email: email,
       automatic_payment_methods: { enabled: true },
       metadata: {
+        orderNumber,
         tier,
         recipient: recipient || '',
         occasion:  occasion  || '',
@@ -47,7 +50,8 @@ exports.handler = async (event) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         clientSecret:   paymentIntent.client_secret,
-        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY
+        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+        orderNumber
       })
     };
   } catch (err) {

@@ -8,6 +8,7 @@ const ORDER = {
   _stripe: null,
   _elements: null,
   _paymentReady: false,
+  _orderNumber: null,
   data: {
     recipient: '',
     sender: '',
@@ -35,9 +36,10 @@ function openOrderForm(tier, price) {
   ORDER.price = price;
   ORDER.step  = 1;
   ORDER.goingBack    = false;
-  ORDER._stripe      = null;
-  ORDER._elements    = null;
+  ORDER._stripe       = null;
+  ORDER._elements     = null;
   ORDER._paymentReady = false;
+  ORDER._orderNumber  = null;
   ORDER.data.emotions = [];
 
   document.getElementById('order-tier-badge').textContent =
@@ -253,10 +255,11 @@ async function initPaymentStep() {
     });
 
     if (!res.ok) throw new Error('Грешка при свързване с плащането.');
-    const { clientSecret, publishableKey } = await res.json();
+    const { clientSecret, publishableKey, orderNumber } = await res.json();
     if (!clientSecret) throw new Error('Невалиден отговор от сървъра.');
 
-    ORDER._stripe   = Stripe(publishableKey);
+    ORDER._orderNumber = orderNumber;
+    ORDER._stripe      = Stripe(publishableKey);
     ORDER._elements = ORDER._stripe.elements({
       clientSecret,
       locale: 'auto',
@@ -321,10 +324,30 @@ async function confirmPayment() {
   nextBtn.textContent = 'Обработване…';
   errEl.style.display = 'none';
 
+  // Save order snapshot to sessionStorage in case 3DS redirect happens
+  sessionStorage.setItem('pendingOrder', JSON.stringify({
+    orderNumber:    ORDER._orderNumber,
+    tier:           ORDER.tier,
+    price:          ORDER.price,
+    recipient:      ORDER.data.recipient,
+    sender:         ORDER.data.sender,
+    occasion:       ORDER.data.occasion,
+    story:          ORDER.data.story,
+    emotions:       ORDER.data.emotions,
+    emotionsCustom: ORDER.data.emotionsCustom,
+    style:          ORDER.data.style,
+    styleCustom:    ORDER.data.styleCustom,
+    vocal:          ORDER.data.vocal,
+    includeWords:   ORDER.data.includeWords,
+    excludeWords:   ORDER.data.excludeWords,
+    englishElements: ORDER.data.englishElements,
+    email:          ORDER.data.email
+  }));
+
   const { error } = await ORDER._stripe.confirmPayment({
     elements: ORDER._elements,
     confirmParams: {
-      return_url: `${window.location.origin}${window.location.pathname}?payment=success&tier=${ORDER.tier}&price=${ORDER.price}`,
+      return_url: `${window.location.origin}${window.location.pathname}?payment=success`,
       payment_method_data: {
         billing_details: { email: ORDER.data.email }
       }
@@ -333,12 +356,46 @@ async function confirmPayment() {
   });
 
   if (error) {
+    sessionStorage.removeItem('pendingOrder');
     errEl.textContent    = error.message;
     errEl.style.display  = 'block';
     nextBtn.disabled     = false;
     nextBtn.textContent  = `Плати €${ORDER.price}`;
   } else {
+    // Non-redirect path (no 3DS) — send emails now
+    sendConfirmationEmails({
+      orderNumber:    ORDER._orderNumber,
+      tier:           ORDER.tier,
+      price:          ORDER.price,
+      recipient:      ORDER.data.recipient,
+      sender:         ORDER.data.sender,
+      occasion:       ORDER.data.occasion,
+      story:          ORDER.data.story,
+      emotions:       ORDER.data.emotions,
+      emotionsCustom: ORDER.data.emotionsCustom,
+      style:          ORDER.data.style,
+      styleCustom:    ORDER.data.styleCustom,
+      vocal:          ORDER.data.vocal,
+      includeWords:   ORDER.data.includeWords,
+      excludeWords:   ORDER.data.excludeWords,
+      englishElements: ORDER.data.englishElements,
+      email:          ORDER.data.email
+    });
+    sessionStorage.removeItem('pendingOrder');
     showSuccess();
+  }
+}
+
+// ─── SEND CONFIRMATION EMAILS ──────────────────────────────
+async function sendConfirmationEmails(payload) {
+  try {
+    await fetch('/.netlify/functions/send-confirmation', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    });
+  } catch (e) {
+    console.error('Email send failed:', e);
   }
 }
 
@@ -358,9 +415,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Check if returning from 3D Secure redirect
   const params = new URLSearchParams(window.location.search);
   if (params.get('payment') === 'success') {
-    // Clean URL without reloading
     window.history.replaceState({}, '', window.location.pathname);
-    // Show a toast or banner — the modal is closed at this point
+
+    // Send confirmation emails using order data saved before redirect
+    const pending = sessionStorage.getItem('pendingOrder');
+    if (pending) {
+      sendConfirmationEmails(JSON.parse(pending));
+      sessionStorage.removeItem('pendingOrder');
+    }
+
     const banner = document.getElementById('payment-success-banner');
     if (banner) banner.style.display = 'flex';
   }
