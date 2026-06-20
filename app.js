@@ -8,7 +8,7 @@ async function loadTracks() {
     tracks = await res.json();
   } catch {
     tracks = [
-      { id: 'za-teb',              slot: 'hero',    file: 'audio/za-teb.mp3' },
+      { id: 'mamo',                 slot: 'hero',    file: 'audio/Mamo.wav' },
       { id: 'emo',                 slot: 'example', index: 0, file: 'audio/Emo.wav',  comingSoon: false },
       { id: 'zabavna-priyatel',    slot: 'example', index: 1, file: null,             comingSoon: true  },
       { id: 'za-mama',             slot: 'example', index: 2, file: null,             comingSoon: true  },
