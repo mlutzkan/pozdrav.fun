@@ -8,10 +8,10 @@ async function loadTracks() {
     tracks = await res.json();
   } catch {
     tracks = [
-      { id: 'mamo',                 slot: 'hero',    file: 'audio/Mamo.wav' },
-      { id: 'emo',                 slot: 'example', index: 0, file: 'audio/Emo.wav',  comingSoon: false },
+      { id: 'bdz',                  slot: 'hero',    file: 'audio/BDZ.mp3' },
+      { id: 'emo',                 slot: 'example', index: 0, file: 'audio/Emo.mp3',  comingSoon: false },
       { id: 'zabavna-priyatel',    slot: 'example', index: 1, file: null,             comingSoon: true  },
-      { id: 'za-mama',             slot: 'example', index: 2, file: null,             comingSoon: true  },
+      { id: 'za-mama',             slot: 'example', index: 2, file: 'audio/Mamo.mp3', comingSoon: false },
       { id: 'pyrvi-tants',         slot: 'example', index: 3, file: null,             comingSoon: true  }
     ];
   }
@@ -219,6 +219,15 @@ function toggleAudio(card, idx) {
   // Stop any other playing card first
   if (activeCard) stopCard(activeCard, activeIdx);
 
+  // Stop hero audio if playing
+  if (heroPlaying) {
+    heroAudio.pause();
+    heroPlaying = false;
+    setHeroPlayState(false);
+    clearInterval(heroProgressInterval);
+    heroProgressInterval = null;
+  }
+
   // Play this card
   if (audio) {
     audio.play().catch(() => setCardPlayState(card, idx, false));
@@ -239,6 +248,7 @@ function toggleAudio(card, idx) {
 // ─── HERO AUDIO ────────────────────────────────────────────
 let heroAudio = null;
 let heroPlaying = false;
+let heroProgressInterval = null;
 
 function initHeroAudio() {
   const heroTrack = tracks.find(t => t.slot === 'hero');
@@ -249,25 +259,52 @@ function initHeroAudio() {
   heroAudio.addEventListener('ended', () => {
     heroPlaying = false;
     setHeroPlayState(false);
+    clearInterval(heroProgressInterval);
+    heroProgressInterval = null;
+    const pb = document.getElementById('hero-pb');
+    if (pb) pb.style.width = '0%';
   });
 
   heroAudio.addEventListener('error', () => {
     heroPlaying = false;
+    clearInterval(heroProgressInterval);
+    heroProgressInterval = null;
     const btn = document.getElementById('hero-play-btn');
     if (btn) btn.classList.add('error');
   });
+
+  const heroProgress = document.getElementById('hero-progress');
+  if (heroProgress) {
+    heroProgress.addEventListener('click', (e) => {
+      if (!heroAudio || !heroAudio.duration) return;
+      const rect = heroProgress.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      heroAudio.currentTime = pct * heroAudio.duration;
+      const pb = document.getElementById('hero-pb');
+      if (pb) pb.style.width = (pct * 100) + '%';
+    });
+  }
 }
 
 function toggleHeroPlay(btn) {
   if (!heroAudio) return;
   heroPlaying = !heroPlaying;
   if (heroPlaying) {
+    if (activeCard) stopCard(activeCard, activeIdx);
     heroAudio.play().catch(() => {
       heroPlaying = false;
-      btn.classList.add('error');
+      setHeroPlayState(false);
     });
+    const pb = document.getElementById('hero-pb');
+    clearInterval(heroProgressInterval);
+    heroProgressInterval = setInterval(() => {
+      if (!heroAudio || !heroAudio.duration) return;
+      if (pb) pb.style.width = (heroAudio.currentTime / heroAudio.duration * 100) + '%';
+    }, 250);
   } else {
     heroAudio.pause();
+    clearInterval(heroProgressInterval);
+    heroProgressInterval = null;
   }
   setHeroPlayState(heroPlaying);
 }
