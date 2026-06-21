@@ -219,8 +219,8 @@ function toggleAudio(card, idx) {
   // Stop any other playing card first
   if (activeCard) stopCard(activeCard, activeIdx);
 
-  // Stop hero audio if playing
-  if (heroPlaying) {
+  // Stop hero audio if it is actually playing
+  if (heroAudio && !heroAudio.paused) {
     heroAudio.pause();
     heroPlaying = false;
     setHeroPlayState(false);
@@ -255,6 +255,7 @@ function initHeroAudio() {
   if (!heroTrack || !heroTrack.file) return;
 
   heroAudio = new Audio(heroTrack.file);
+  heroAudio.preload = 'metadata';
 
   heroAudio.addEventListener('ended', () => {
     heroPlaying = false;
@@ -263,6 +264,11 @@ function initHeroAudio() {
     heroProgressInterval = null;
     const pb = document.getElementById('hero-pb');
     if (pb) pb.style.width = '0%';
+  });
+
+  heroAudio.addEventListener('loadedmetadata', () => {
+    const durEl = document.getElementById('hero-duration');
+    if (durEl && heroAudio.duration) durEl.textContent = formatTime(heroAudio.duration);
   });
 
   heroAudio.addEventListener('error', () => {
@@ -290,7 +296,11 @@ function toggleHeroPlay(btn) {
   if (!heroAudio) return;
   heroPlaying = !heroPlaying;
   if (heroPlaying) {
-    if (activeCard) stopCard(activeCard, activeIdx);
+    // Stop any example card that is actually playing
+    if (activeCard) {
+      const activeAudio = audioObjects[activeIdx];
+      if (activeAudio && !activeAudio.paused) stopCard(activeCard, activeIdx);
+    }
     heroAudio.play().catch(() => {
       heroPlaying = false;
       setHeroPlayState(false);
