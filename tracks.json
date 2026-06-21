@@ -1,14 +1,14 @@
 [
   {
-    "id": "mamo",
+    "id": "bdz",
     "slot": "hero",
-    "file": "audio/Mamo.wav"
+    "file": "audio/BDZ.mp3"
   },
   {
     "id": "emo",
     "slot": "example",
     "index": 0,
-    "file": "audio/Emo.wav",
+    "file": "audio/Emo.mp3",
     "comingSoon": false
   },
   {
@@ -22,8 +22,8 @@
     "id": "za-mama",
     "slot": "example",
     "index": 2,
-    "file": null,
-    "comingSoon": true
+    "file": "audio/Mamo.mp3",
+    "comingSoon": false
   },
   {
     "id": "pyrvi-tants",
