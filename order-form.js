@@ -243,7 +243,7 @@ async function initPaymentStep() {
   nextBtn.disabled = true;
 
   try {
-    const res = await fetch('/.netlify/functions/create-payment-intent', {
+    const res = await fetch('/api/create-payment-intent', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -398,7 +398,7 @@ async function confirmPayment() {
 // ─── SEND CONFIRMATION EMAILS ──────────────────────────────
 async function sendConfirmationEmails(payload) {
   try {
-    await fetch('/.netlify/functions/send-confirmation', {
+    await fetch('/api/send-confirmation', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(payload)
