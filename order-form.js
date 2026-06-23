@@ -223,7 +223,6 @@ function collectStepData(step) {
     ORDER.data.includeWords    = val('of-include');
     ORDER.data.excludeWords    = val('of-exclude');
     ORDER.data.englishElements = document.getElementById('of-english').checked;
-    ORDER.promoCode            = val('of-promo').trim();
   }
   if (step === 6) { ORDER.data.email = val('of-email'); }
 }
@@ -239,8 +238,24 @@ function toggleEmotion(chip, emotion) {
 }
 
 // ─── PAYMENT — INIT ────────────────────────────────────────
+let _initToken = 0;
+
+function resetPaymentElement() {
+  _initToken++;
+  ORDER._paymentReady = false;
+  ORDER._stripe       = null;
+  ORDER._elements     = null;
+  document.getElementById('payment-loading').style.display           = 'flex';
+  document.getElementById('payment-element-container').style.display = 'none';
+  document.getElementById('payment-element').innerHTML               = '';
+  document.getElementById('payment-error').style.display             = 'none';
+  const nextBtn = document.getElementById('order-next');
+  if (nextBtn) nextBtn.disabled = true;
+}
+
 async function initPaymentStep() {
   if (ORDER._paymentReady) return;
+  const token = ++_initToken;
 
   // Show order summary
   const summaryEl = document.getElementById('payment-summary');
@@ -323,6 +338,7 @@ async function initPaymentStep() {
     paymentElement.mount('#payment-element');
 
     paymentElement.on('ready', () => {
+      if (token !== _initToken) return;
       document.getElementById('payment-loading').style.display           = 'none';
       document.getElementById('payment-element-container').style.display = 'block';
       nextBtn.disabled    = false;
@@ -501,6 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
       msgEl.textContent = '';
       msgEl.className   = 'order-promo-msg';
       updatePriceDisplay();
+      if (ORDER.step === ORDER.totalSteps) { resetPaymentElement(); initPaymentStep(); }
       return;
     }
     msgEl.textContent = '…';
@@ -525,6 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
           msgEl.className   = 'order-promo-msg invalid';
         }
         updatePriceDisplay();
+        if (ORDER.step === ORDER.totalSteps) { resetPaymentElement(); initPaymentStep(); }
       } catch {
         msgEl.textContent = '';
         msgEl.className   = 'order-promo-msg';
