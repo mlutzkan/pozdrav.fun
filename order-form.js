@@ -30,20 +30,6 @@ const ORDER = {
 const TIER_NAMES    = { basic: 'Basic', premium: 'Premium', signature: 'Signature' };
 const TIER_DELIVERY = { basic: 'до 72 часа', premium: 'до 48 часа', signature: 'до 24 часа' };
 
-const PROMO_CODES = {
-  'admintest2114': { type: 'fixed',   price: 0.01 },
-  'megak':         { type: 'percent', discount: 0.5 },
-  'launch50':      { type: 'percent', discount: 0.5 },
-};
-
-function applyPromoToPrice(basePrice, code) {
-  const promo = PROMO_CODES[code.toLowerCase().trim()];
-  if (!promo) return null;
-  if (promo.type === 'fixed')   return promo.price;
-  if (promo.type === 'percent') return +(basePrice * (1 - promo.discount)).toFixed(2);
-  return null;
-}
-
 function updatePriceDisplay() {
   document.getElementById('order-tier-badge').textContent =
     `${TIER_NAMES[ORDER.tier]} · €${ORDER.price}`;
@@ -503,32 +489,47 @@ document.addEventListener('DOMContentLoaded', () => {
     if (this.value.trim()) document.getElementById('err-emotions').classList.remove('visible');
   });
 
-  // Promo code — validate and update price on input
+  // Promo code — validate via API (debounced)
+  let promoDebounce = null;
   document.getElementById('of-promo').addEventListener('input', function () {
     const code  = this.value.trim();
     const msgEl = document.getElementById('promo-msg');
+    clearTimeout(promoDebounce);
     if (!code) {
-      ORDER.promoCode = '';
-      ORDER.price     = ORDER.basePrice;
+      ORDER.promoCode   = '';
+      ORDER.price       = ORDER.basePrice;
       msgEl.textContent = '';
       msgEl.className   = 'order-promo-msg';
       updatePriceDisplay();
       return;
     }
-    const discounted = applyPromoToPrice(ORDER.basePrice, code);
-    if (discounted !== null) {
-      ORDER.promoCode     = code;
-      ORDER.price         = discounted;
-      const savings       = (ORDER.basePrice - discounted).toFixed(2);
-      msgEl.textContent   = `✓ Промо кодът е приложен! Спестяваш €${savings}`;
-      msgEl.className     = 'order-promo-msg valid';
-    } else {
-      ORDER.promoCode   = '';
-      ORDER.price       = ORDER.basePrice;
-      msgEl.textContent = 'Невалиден промо код';
-      msgEl.className   = 'order-promo-msg invalid';
-    }
-    updatePriceDisplay();
+    msgEl.textContent = '…';
+    msgEl.className   = 'order-promo-msg';
+    promoDebounce = setTimeout(async () => {
+      try {
+        const res  = await fetch('/api/validate-promo', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ code, tier: ORDER.tier }),
+        });
+        const data = await res.json();
+        if (data.valid) {
+          ORDER.promoCode   = code;
+          ORDER.price       = parseFloat(data.discountedPrice);
+          msgEl.textContent = `✓ Промо кодът е приложен! Спестяваш €${data.savings}`;
+          msgEl.className   = 'order-promo-msg valid';
+        } else {
+          ORDER.promoCode   = '';
+          ORDER.price       = ORDER.basePrice;
+          msgEl.textContent = 'Невалиден промо код';
+          msgEl.className   = 'order-promo-msg invalid';
+        }
+        updatePriceDisplay();
+      } catch {
+        msgEl.textContent = '';
+        msgEl.className   = 'order-promo-msg';
+      }
+    }, 500);
   });
 
   // Escape key
