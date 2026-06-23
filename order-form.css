@@ -235,6 +235,15 @@
 }
 .order-error-msg.visible { display: block; }
 
+.order-promo-msg {
+  font-size: 0.76rem;
+  margin-top: 0.4rem;
+  display: block;
+  min-height: 1.1em;
+}
+.order-promo-msg.valid   { color: #2e7d32; }
+.order-promo-msg.invalid { color: #b94040; }
+
 /* ─── CHIPS ─── */
 .order-chips {
   display: flex;

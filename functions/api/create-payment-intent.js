@@ -1,15 +1,25 @@
-const PRICES = { basic: 3900, premium: 5900, signature: 9900 };
-const DELIVERY = { basic: 'до 72 часа', premium: 'до 48 часа', signature: 'до 24 часа' };
+const PRICES   = { basic: 3900, premium: 5900, signature: 9900 };
+const DELIVERY  = { basic: 'до 72 часа', premium: 'до 48 часа', signature: 'до 24 часа' };
+
+function applyPromo(amountCents, code, promoCodes) {
+  if (!code) return amountCents;
+  const promo = promoCodes[code.toLowerCase().trim()];
+  if (!promo) return amountCents;
+  if (promo.type === 'fixed')   return promo.amountCents;
+  if (promo.type === 'percent') return Math.max(1, Math.round(amountCents * (1 - promo.discount)));
+  return amountCents;
+}
 
 export async function onRequestPost({ request, env }) {
   try {
-    const { tier, email, recipient, occasion } = await request.json();
+    const { tier, email, recipient, occasion, promoCode } = await request.json();
 
-    const amount = PRICES[tier];
-    if (!amount) {
+    if (!PRICES[tier]) {
       return Response.json({ error: 'Невалиден пакет.' }, { status: 400 });
     }
 
+    const promoCodes  = JSON.parse(env.PROMO_CODES || '{}');
+    const amount      = applyPromo(PRICES[tier], promoCode || '', promoCodes);
     const orderNumber = (Math.floor(Math.random() * 90000) + 10000).toString();
 
     const params = new URLSearchParams({

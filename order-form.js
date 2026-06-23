@@ -30,10 +30,21 @@ const ORDER = {
 const TIER_NAMES    = { basic: 'Basic', premium: 'Premium', signature: 'Signature' };
 const TIER_DELIVERY = { basic: 'до 72 часа', premium: 'до 48 часа', signature: 'до 24 часа' };
 
+function updatePriceDisplay() {
+  document.getElementById('order-tier-badge').textContent =
+    `${TIER_NAMES[ORDER.tier]} · €${ORDER.price}`;
+  const nextBtn = document.getElementById('order-next');
+  if (ORDER.step === ORDER.totalSteps) {
+    nextBtn.textContent = `Плати €${ORDER.price}`;
+  }
+}
+
 // ─── OPEN / CLOSE ──────────────────────────────────────────
 function openOrderForm(tier, price) {
-  ORDER.tier  = tier;
-  ORDER.price = price;
+  ORDER.tier       = tier;
+  ORDER.price      = price;
+  ORDER.basePrice  = price;
+  ORDER.promoCode  = '';
   ORDER.step  = 1;
   ORDER.goingBack    = false;
   ORDER._stripe       = null;
@@ -41,6 +52,9 @@ function openOrderForm(tier, price) {
   ORDER._paymentReady = false;
   ORDER._orderNumber  = null;
   ORDER.data.emotions = [];
+  document.getElementById('of-promo').value = '';
+  document.getElementById('promo-msg').textContent = '';
+  document.getElementById('promo-msg').className = 'order-promo-msg';
 
   document.getElementById('order-tier-badge').textContent =
     `${TIER_NAMES[tier]} · €${price}`;
@@ -209,6 +223,7 @@ function collectStepData(step) {
     ORDER.data.includeWords    = val('of-include');
     ORDER.data.excludeWords    = val('of-exclude');
     ORDER.data.englishElements = document.getElementById('of-english').checked;
+    ORDER.promoCode            = val('of-promo').trim();
   }
   if (step === 6) { ORDER.data.email = val('of-email'); }
 }
@@ -250,7 +265,8 @@ async function initPaymentStep() {
         tier:      ORDER.tier,
         email:     ORDER.data.email,
         recipient: ORDER.data.recipient,
-        occasion:  ORDER.data.occasion
+        occasion:  ORDER.data.occasion,
+        promoCode: ORDER.promoCode || ''
       })
     });
 
@@ -471,6 +487,49 @@ document.addEventListener('DOMContentLoaded', () => {
   // Emotions custom — clear error when typing
   document.getElementById('of-emotions-custom').addEventListener('input', function () {
     if (this.value.trim()) document.getElementById('err-emotions').classList.remove('visible');
+  });
+
+  // Promo code — validate via API (debounced)
+  let promoDebounce = null;
+  document.getElementById('of-promo').addEventListener('input', function () {
+    const code  = this.value.trim();
+    const msgEl = document.getElementById('promo-msg');
+    clearTimeout(promoDebounce);
+    if (!code) {
+      ORDER.promoCode   = '';
+      ORDER.price       = ORDER.basePrice;
+      msgEl.textContent = '';
+      msgEl.className   = 'order-promo-msg';
+      updatePriceDisplay();
+      return;
+    }
+    msgEl.textContent = '…';
+    msgEl.className   = 'order-promo-msg';
+    promoDebounce = setTimeout(async () => {
+      try {
+        const res  = await fetch('/api/validate-promo', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ code, tier: ORDER.tier }),
+        });
+        const data = await res.json();
+        if (data.valid) {
+          ORDER.promoCode   = code;
+          ORDER.price       = parseFloat(data.discountedPrice);
+          msgEl.textContent = `✓ Промо кодът е приложен! Спестяваш €${data.savings}`;
+          msgEl.className   = 'order-promo-msg valid';
+        } else {
+          ORDER.promoCode   = '';
+          ORDER.price       = ORDER.basePrice;
+          msgEl.textContent = 'Невалиден промо код';
+          msgEl.className   = 'order-promo-msg invalid';
+        }
+        updatePriceDisplay();
+      } catch {
+        msgEl.textContent = '';
+        msgEl.className   = 'order-promo-msg';
+      }
+    }, 500);
   });
 
   // Escape key

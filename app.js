@@ -222,10 +222,13 @@ function toggleAudio(card, idx) {
   // Stop hero audio if it is actually playing
   if (heroAudio && !heroAudio.paused) {
     heroAudio.pause();
+    heroAudio.currentTime = 0;
     heroPlaying = false;
     setHeroPlayState(false);
     clearInterval(heroProgressInterval);
     heroProgressInterval = null;
+    const heroPb = document.getElementById('hero-pb');
+    if (heroPb) heroPb.style.width = '0%';
   }
 
   // Play this card
