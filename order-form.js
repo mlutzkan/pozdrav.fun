@@ -37,6 +37,8 @@ function updatePriceDisplay() {
   if (ORDER.step === ORDER.totalSteps) {
     nextBtn.textContent = `Плати €${ORDER.price}`;
   }
+  const summaryPrice = document.querySelector('#payment-summary .payment-summary-price');
+  if (summaryPrice) summaryPrice.textContent = `€${ORDER.price}`;
 }
 
 // ─── OPEN / CLOSE ──────────────────────────────────────────
