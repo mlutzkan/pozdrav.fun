@@ -1,3 +1,18 @@
+// ─── STRIPE LAZY LOAD ──────────────────────────────────────
+let _stripeJsLoaded = null;
+function loadStripeJs() {
+  if (!_stripeJsLoaded) {
+    _stripeJsLoaded = new Promise(resolve => {
+      if (window.Stripe) return resolve();
+      const s = document.createElement('script');
+      s.src = 'https://js.stripe.com/v3/';
+      s.onload = resolve;
+      document.head.appendChild(s);
+    });
+  }
+  return _stripeJsLoaded;
+}
+
 // ─── STATE ─────────────────────────────────────────────────
 const ORDER = {
   tier: null,
@@ -84,6 +99,9 @@ function openOrderForm(tier, price) {
   document.getElementById('payment-loading').style.display           = 'flex';
   document.getElementById('payment-element-container').style.display = 'none';
   document.getElementById('payment-element').innerHTML               = '';
+
+  // Start loading Stripe.js in the background while user fills the form
+  loadStripeJs();
 
   // Show modal
   document.getElementById('order-body').style.display   = '';
@@ -292,6 +310,7 @@ async function initPaymentStep() {
     if (!clientSecret) throw new Error('Невалиден отговор от сървъра.');
 
     ORDER._orderNumber = orderNumber;
+    await loadStripeJs();
     ORDER._stripe      = Stripe(publishableKey);
     ORDER._elements = ORDER._stripe.elements({
       clientSecret,
