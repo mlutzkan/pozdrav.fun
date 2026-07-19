@@ -257,9 +257,9 @@ nav.scrolled {
 
 .hero-subhead {
   color: rgba(255,255,255,0.7);
-  font-size: 1rem;
-  line-height: 1.5;
-  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  margin-bottom: 1.5rem;
   max-width: 480px;
 }
 
