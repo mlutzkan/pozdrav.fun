@@ -708,6 +708,67 @@ nav.scrolled {
 }
 
 /* ═══ PRICING ═══ */
+#occasions {
+  background: var(--navy);
+  color: var(--white);
+}
+#occasions h2 { color: var(--white); }
+#occasions .eyebrow { color: var(--gold); }
+#occasions .section-sub {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.95rem;
+  max-width: 480px;
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+}
+
+.occasions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.occasion-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-top: 2px solid var(--gold);
+  border-radius: 6px;
+  padding: 1.25rem 1.1rem 1rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+.occasion-card:hover {
+  background: rgba(201,168,76,0.07);
+  border-color: rgba(201,168,76,0.4);
+}
+.occasion-icon {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 0.75rem;
+  color: var(--gold);
+  opacity: 0.85;
+  display: block;
+}
+.occasion-card h3 {
+  font-family: 'Cormorant Garant', serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: var(--white);
+  margin-bottom: 0.35rem;
+  line-height: 1.25;
+}
+.occasion-card p {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .occasions-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .occasions-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+}
+
 #pricing {
   background: var(--cream-dark);
 }
